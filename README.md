@@ -116,7 +116,7 @@ export * from "./components";
 Install Rollup and plugins
 
 ```bash
-npm install rollup @rollup/plugin-node-resolve @rollup/plugin-typescript @rollup/plugin-commonjs rollup-plugin-dts rollup-plugin-postcss --save-dev
+npm install rollup @rollup/plugin-node-resolve @rollup/plugin-typescript @rollup/plugin-commonjs rollup-plugin-dts rollup-plugin-postcss rollup-plugin-peer-deps-external --save-dev
 ```
 
 - [@rollup/plugin-node-resolve](https://www.npmjs.com/package/@rollup/plugin-node-resolve) - For Rollup to locate and bundle third-party dependencies in node_modules. The dependencies meant here are the dependencies listed in your package.json file.
@@ -125,6 +125,7 @@ npm install rollup @rollup/plugin-node-resolve @rollup/plugin-typescript @rollup
 - [@rollup/plugin-commonjs](https://www.npmjs.com/package/@rollup/plugin-commonjs) - For Rollup to convert CommonJS modules into ES6, so that they can be included in a Rollup bundle. It is typically used along with @rollup/plugin-node-resolve, to bundle the CommonJS dependencies.
 - [rollup-plugin-dts](https://www.npmjs.com/package/rollup-plugin-dts) - Rollup your .d.ts definition files
 - [rollup-plugin-css](https://www.npmjs.com/package/rollup-plugin-postcss) - To integrate with PostCSS
+- [rollup-plugin-peer-deps-external](https://www.npmjs.com/package/rollup-plugin-peer-deps-external) - Excludes peer dependencies from the bundle
 
 @rollup/plugin-typescript has an additional dependency that needs to be installed:
 
@@ -159,7 +160,14 @@ export default [
         sourcemap: true,
       },
     ],
-    plugins: [resolve(), commonjs(), typescript({ tsconfig: "./tsconfig.json" }), postcss()],
+    plugins: [
+      // Preferably set as first plugin.
+      peerDepsExternal(),
+      resolve(),
+      commonjs(),
+      typescript({ tsconfig: "./tsconfig.json" }),
+      postcss(),
+    ],
   },
   {
     input: "dist/esm/types/index.d.ts",

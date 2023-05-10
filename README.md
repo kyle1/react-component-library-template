@@ -77,14 +77,14 @@ In the package directory, create a `src` directory with the structure shown belo
 ```
 
 ```css
-/* my-component-library/src/components/Button/Button.css */
+/* src/components/Button/Button.css */
 .button {
   font-size: 100px;
 }
 ```
 
 ```typescript
-// my-component-library/src/components/Button/Button.tsx
+// src/components/Button/Button.tsx
 import "./Button.css";
 
 interface ButtonProps {
@@ -97,17 +97,17 @@ export const Button = ({ label }: ButtonProps) => {
 ```
 
 ```typescript
-// my-component-library/src/components/Button/index.ts
+// src/components/Button/index.ts
 export { Button } from "./Button";
 ```
 
 ```typescript
-// my-component-library/src/components/index.ts
+// src/components/index.ts
 export { Button } from "./Button";
 ```
 
 ```typescript
-// my-component-library/src/index.ts
+// src/index.ts
 export * from "./components";
 ```
 
@@ -274,7 +274,7 @@ npm publish
 
 Go to your GitHub profile page and click the Packages tab to see the package you just published.
 
-# Using the Package Locally
+## Using the Package Locally
 
 You might want to keep your library private. You can import your local package into one of your projects by simply adding it as a dependency in the project:
 
@@ -285,7 +285,7 @@ npm i ./path-to/my-component-library
 This will add your local package as a dependency in package.json:
 
 ```json
-// consumer-app/package.json
+// my-frontend-app/package.json
 {
   ...
   "dependencies": {
@@ -298,3 +298,44 @@ This will add your local package as a dependency in package.json:
 You will now be able to import Button from "my-component-library".
 
 If changes are made to the component library, recreate the package bundle by running the `npm run rollup` command in the library's root directory. The library changes will then take effect in the consumer app because a [link](https://docs.npmjs.com/cli/v8/commands/npm-link) was created to the local package when it was installed as a dependency.
+
+## Add Tailwind (Optional)
+
+```bash
+npm install tailwindcss postcss autoprefixer --save-dev
+npx tailwindcss init -p
+```
+
+Add the paths to all of your template files in your `tailwind.config.js` file:
+
+```javascript
+// tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+```
+
+Insert Tailwind's `base`, `components`, and `utilities` styles into your CSS
+
+```css
+/* src/styles/tailwind.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+Import the CSS into the components entry point
+
+```typescript
+// src/components/index.ts
+import "../styles/tailwind.css";
+
+export { Button } from "./Button";
+```
+
+You can now add Tailwind styles to your components that will be included in the rollup build.

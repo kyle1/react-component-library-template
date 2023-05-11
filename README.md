@@ -339,3 +339,124 @@ export { Button } from "./Button";
 ```
 
 You can now add Tailwind styles to your components that will be included in the rollup build.
+
+## Add Storybook
+
+Install Storybook:
+
+```bash
+npx storybook@latest init
+```
+
+When asked if you would like to run the `missing-babelrc` migration on your project, answer "Y".
+
+Answer "Y" to the three follow-up questions.
+
+Install the following addons:
+
+```bash
+npm install @storybook/addon-a11y @storybook/addon-styling --save-dev
+```
+
+- [@storybook/addon-a11y](https://storybook.js.org/addons/@storybook/addon-a11y) - Test component compliance with web accessibility standards
+- [@storybook/addon-styling](https://www.npmjs.com/package/@storybook/addon-styling) - Enable toggling between themes and other styling features
+
+Then include the addons in your .storybook/main.ts file:
+
+```typescript
+// .storybook/main.ts
+import type { StorybookConfig } from "@storybook/react-webpack5";
+const config: StorybookConfig = {
+  stories: ["../src/**/*.stories.mdx", "../src/**/*.stories.@(js|jsx|ts|tsx)"],
+  addons: [
+    "@storybook/addon-a11y",
+    "@storybook/addon-essentials",
+    "@storybook/addon-interactions",
+    "@storybook/addon-links",
+    {
+      // https://storybook.js.org/recipes/tailwindcss
+      name: "@storybook/addon-styling",
+      options: {
+        // Check out https://github.com/storybookjs/addon-styling/blob/main/docs/api.md
+        // For more details on this addon's options.
+        postCss: true,
+      },
+    },
+  ],
+  framework: {
+    name: "@storybook/react-webpack5",
+    options: {},
+  },
+  docs: {
+    autodocs: "tag",
+  },
+};
+export default config;
+```
+
+Provide Tailwind to your stories in the `preview.ts` file. Use `withThemeByClassName` to add your themes to the Storybook toolbar
+
+```typescript
+// .storybook/preview.ts
+import type { Preview } from "@storybook/react";
+import "../src/styles/tailwind.css";
+
+const preview: Preview = {
+  parameters: {
+    actions: { argTypesRegex: "^on[A-Z].*" },
+    controls: {
+      matchers: {
+        color: /(background|color)$/i,
+        date: /Date$/,
+      },
+    },
+  },
+};
+
+export default preview;
+```
+
+If additional styling changes are needed, create a Storybook stylesheet
+and import it into `preview.ts`:
+
+```css
+/* .storybook/storybook.css */
+html {
+  height: 100% !important;
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+html:not(.dark) > .sb-show-main {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+.dark > .sb-main-padded {
+  padding: 0;
+}
+
+.dark > .sb-show-main > #storybook-root {
+  padding: 1rem;
+  background: #000000 !important;
+  color: #ffffff;
+}
+
+.sb-show-main.sb-main-padded {
+  height: 100% !important;
+}
+
+#storybook-root {
+  height: 100%;
+}
+
+/* Docs are not configured for dark mode */
+#storybook-docs {
+  background: #ffffff;
+  color: #000000;
+}
+```
+
+Delete the src/stories folder containing example stories.
+
+Create your own stories!
